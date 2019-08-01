@@ -1,0 +1,2 @@
+install: mvn clean install -Pwebpack
+script: mvn package -Pprod -DskipTests
