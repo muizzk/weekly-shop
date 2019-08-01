@@ -1,2 +1,2 @@
-install: mvn clean install -Pwebpack | grep -v 'Download * http'
+install: mvn clean install -Pwebpack | grep -v 'Download'
 script: mvn package -Pprod -DskipTests
