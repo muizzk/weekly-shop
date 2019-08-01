@@ -1,0 +1,37 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "com.logiciel.weeklyshop"
+    },
+    "jhipsterVersion": "6.1.2",
+    "applicationType": "monolith",
+    "baseName": "WeeklyShop",
+    "packageName": "com.logiciel.weeklyshop",
+    "packageFolder": "com/logiciel/weeklyshop",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "ehcache",
+    "enableHibernateCache": true,
+    "websocket": false,
+    "databaseType": "sql",
+    "devDatabaseType": "h2Disk",
+    "prodDatabaseType": "postgresql",
+    "searchEngine": "elasticsearch",
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "ZTNmNjVkYmVkZTE1ZTI5Y2U4ZGYzMTY5YzZmOTQ3N2Y2OGIyZjBlM2FmZDRkNGFiZTVkYmYxMDdjOWU1Y2EzMjdlYWU0Mzg0ZTEzNmU2MjAyN2M2MzBhMzE4NzU1M2NlZDhmNjU2ZDNkOWQ3ODU1YjA3MmI5NjJjYTdlMjBmNjc=",
+    "useSass": true,
+    "clientPackageManager": "npm",
+    "clientFramework": "react",
+    "clientTheme": "none",
+    "clientThemeVariant": "",
+    "testFrameworks": ["protractor"],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": false
+  }
+}

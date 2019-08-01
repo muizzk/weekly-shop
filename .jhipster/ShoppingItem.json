@@ -1,0 +1,61 @@
+{
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "relationships": [
+        {
+            "relationshipName": "shoppingList",
+            "otherEntityName": "shoppingList",
+            "relationshipType": "many-to-one",
+            "otherEntityField": "id",
+            "otherEntityRelationshipName": "shoppingItem"
+        },
+        {
+            "relationshipName": "category",
+            "otherEntityName": "category",
+            "relationshipType": "many-to-one",
+            "relationshipValidateRules": [
+                "required"
+            ],
+            "otherEntityField": "id",
+            "otherEntityRelationshipName": "shoppingItem"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "owner",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        },
+        {
+            "fieldName": "name",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required",
+                "unique"
+            ]
+        },
+        {
+            "fieldName": "quantity",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "origin",
+            "fieldType": "Origin",
+            "fieldValues": "MANUALLY_ENTERED,STAPLE,RECIPE"
+        },
+        {
+            "fieldName": "deleted",
+            "fieldType": "Boolean"
+        }
+    ],
+    "changelogDate": "20190729114911",
+    "dto": "no",
+    "searchEngine": "elasticsearch",
+    "service": "no",
+    "entityTableName": "shopping_item",
+    "databaseType": "sql",
+    "jpaMetamodelFiltering": false,
+    "pagination": "no"
+}

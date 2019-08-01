@@ -1,0 +1,26 @@
+{
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "relationships": [
+        {
+            "relationshipName": "shoppingItem",
+            "otherEntityName": "shoppingItem",
+            "relationshipType": "one-to-many",
+            "otherEntityRelationshipName": "shoppingList"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "owner",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20190729115311",
+    "dto": "no",
+    "searchEngine": "elasticsearch",
+    "service": "no",
+    "entityTableName": "shopping_list",
+    "databaseType": "sql",
+    "jpaMetamodelFiltering": false,
+    "pagination": "no"
+}

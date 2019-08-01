@@ -1,0 +1,38 @@
+{
+    "fluentMethods": true,
+    "clientRootFolder": "",
+    "relationships": [
+        {
+            "relationshipName": "category",
+            "otherEntityName": "category",
+            "relationshipType": "many-to-one",
+            "otherEntityField": "id",
+            "otherEntityRelationshipName": "staple"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "owner",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "quantity",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "name",
+            "fieldType": "String",
+            "fieldValidateRules": [
+                "required"
+            ]
+        }
+    ],
+    "changelogDate": "20190729120115",
+    "dto": "no",
+    "searchEngine": "elasticsearch",
+    "service": "no",
+    "entityTableName": "staple",
+    "databaseType": "sql",
+    "jpaMetamodelFiltering": false,
+    "pagination": "no"
+}
