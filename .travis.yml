@@ -1,2 +1,2 @@
-install: mvn clean install -Pwebpack
+install: mvn clean install -Pwebpack -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
 script: mvn package -Pprod -DskipTests
