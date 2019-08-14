@@ -1,4 +1,4 @@
-script: mvn clean verify -Pprod,webpack
+script: mvn clean verify -Pprod,webpack -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
 deploy:
   provider: heroku
   api_key: $HEROKU_API_KEY
