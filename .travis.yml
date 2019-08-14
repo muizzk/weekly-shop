@@ -1,2 +1,5 @@
-install: mvn clean install -Pwebpack | grep -v 'Download'
-script: mvn package -Pprod -DskipTests
+script: mvn clean verify -Pprod,webpack
+deploy:
+  provider: heroku
+  api_key: $HEROKU_API_KEY
+  app: weekly-shop
