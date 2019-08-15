@@ -2,7 +2,6 @@ package com.logiciel.weeklyshop.web.rest;
 
 import com.logiciel.weeklyshop.domain.ShoppingItem;
 import com.logiciel.weeklyshop.repository.ShoppingItemRepository;
-import com.logiciel.weeklyshop.repository.search.ShoppingItemSearchRepository;
 import com.logiciel.weeklyshop.web.rest.errors.BadRequestAlertException;
 
 import io.github.jhipster.web.util.HeaderUtil;
@@ -19,10 +18,6 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing {@link com.logiciel.weeklyshop.domain.ShoppingItem}.
@@ -40,11 +35,8 @@ public class ShoppingItemResource {
 
     private final ShoppingItemRepository shoppingItemRepository;
 
-    private final ShoppingItemSearchRepository shoppingItemSearchRepository;
-
-    public ShoppingItemResource(ShoppingItemRepository shoppingItemRepository, ShoppingItemSearchRepository shoppingItemSearchRepository) {
+    public ShoppingItemResource(ShoppingItemRepository shoppingItemRepository) {
         this.shoppingItemRepository = shoppingItemRepository;
-        this.shoppingItemSearchRepository = shoppingItemSearchRepository;
     }
 
     /**
@@ -61,7 +53,6 @@ public class ShoppingItemResource {
             throw new BadRequestAlertException("A new shoppingItem cannot already have an ID", ENTITY_NAME, "idexists");
         }
         ShoppingItem result = shoppingItemRepository.save(shoppingItem);
-        shoppingItemSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/shopping-items/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -83,7 +74,6 @@ public class ShoppingItemResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         ShoppingItem result = shoppingItemRepository.save(shoppingItem);
-        shoppingItemSearchRepository.save(result);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, shoppingItem.getId().toString()))
             .body(result);
@@ -123,23 +113,7 @@ public class ShoppingItemResource {
     public ResponseEntity<Void> deleteShoppingItem(@PathVariable Long id) {
         log.debug("REST request to delete ShoppingItem : {}", id);
         shoppingItemRepository.deleteById(id);
-        shoppingItemSearchRepository.deleteById(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
-    }
-
-    /**
-     * {@code SEARCH  /_search/shopping-items?query=:query} : search for the shoppingItem corresponding
-     * to the query.
-     *
-     * @param query the query of the shoppingItem search.
-     * @return the result of the search.
-     */
-    @GetMapping("/_search/shopping-items")
-    public List<ShoppingItem> searchShoppingItems(@RequestParam String query) {
-        log.debug("REST request to search ShoppingItems for query {}", query);
-        return StreamSupport
-            .stream(shoppingItemSearchRepository.search(queryStringQuery(query)).spliterator(), false)
-            .collect(Collectors.toList());
     }
 
 }

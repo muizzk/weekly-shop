@@ -4,7 +4,6 @@ import com.logiciel.weeklyshop.WeeklyShopApp;
 import com.logiciel.weeklyshop.domain.ShoppingItem;
 import com.logiciel.weeklyshop.domain.Category;
 import com.logiciel.weeklyshop.repository.ShoppingItemRepository;
-import com.logiciel.weeklyshop.repository.search.ShoppingItemSearchRepository;
 import com.logiciel.weeklyshop.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +25,6 @@ import java.util.List;
 
 import static com.logiciel.weeklyshop.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -57,14 +55,6 @@ public class ShoppingItemResourceIT {
     @Autowired
     private ShoppingItemRepository shoppingItemRepository;
 
-    /**
-     * This repository is mocked in the com.logiciel.weeklyshop.repository.search test package.
-     *
-     * @see com.logiciel.weeklyshop.repository.search.ShoppingItemSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private ShoppingItemSearchRepository mockShoppingItemSearchRepository;
-
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
@@ -87,7 +77,7 @@ public class ShoppingItemResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final ShoppingItemResource shoppingItemResource = new ShoppingItemResource(shoppingItemRepository, mockShoppingItemSearchRepository);
+        final ShoppingItemResource shoppingItemResource = new ShoppingItemResource(shoppingItemRepository);
         this.restShoppingItemMockMvc = MockMvcBuilders.standaloneSetup(shoppingItemResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -172,9 +162,6 @@ public class ShoppingItemResourceIT {
         assertThat(testShoppingItem.getQuantity()).isEqualTo(DEFAULT_QUANTITY);
         assertThat(testShoppingItem.getOrigin()).isEqualTo(DEFAULT_ORIGIN);
         assertThat(testShoppingItem.isDeleted()).isEqualTo(DEFAULT_DELETED);
-
-        // Validate the ShoppingItem in Elasticsearch
-        verify(mockShoppingItemSearchRepository, times(1)).save(testShoppingItem);
     }
 
     @Test
@@ -194,9 +181,6 @@ public class ShoppingItemResourceIT {
         // Validate the ShoppingItem in the database
         List<ShoppingItem> shoppingItemList = shoppingItemRepository.findAll();
         assertThat(shoppingItemList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the ShoppingItem in Elasticsearch
-        verify(mockShoppingItemSearchRepository, times(0)).save(shoppingItem);
     }
 
 
@@ -313,9 +297,6 @@ public class ShoppingItemResourceIT {
         assertThat(testShoppingItem.getQuantity()).isEqualTo(UPDATED_QUANTITY);
         assertThat(testShoppingItem.getOrigin()).isEqualTo(UPDATED_ORIGIN);
         assertThat(testShoppingItem.isDeleted()).isEqualTo(UPDATED_DELETED);
-
-        // Validate the ShoppingItem in Elasticsearch
-        verify(mockShoppingItemSearchRepository, times(1)).save(testShoppingItem);
     }
 
     @Test
@@ -334,9 +315,6 @@ public class ShoppingItemResourceIT {
         // Validate the ShoppingItem in the database
         List<ShoppingItem> shoppingItemList = shoppingItemRepository.findAll();
         assertThat(shoppingItemList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the ShoppingItem in Elasticsearch
-        verify(mockShoppingItemSearchRepository, times(0)).save(shoppingItem);
     }
 
     @Test
@@ -355,28 +333,6 @@ public class ShoppingItemResourceIT {
         // Validate the database contains one less item
         List<ShoppingItem> shoppingItemList = shoppingItemRepository.findAll();
         assertThat(shoppingItemList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the ShoppingItem in Elasticsearch
-        verify(mockShoppingItemSearchRepository, times(1)).deleteById(shoppingItem.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchShoppingItem() throws Exception {
-        // Initialize the database
-        shoppingItemRepository.saveAndFlush(shoppingItem);
-        when(mockShoppingItemSearchRepository.search(queryStringQuery("id:" + shoppingItem.getId())))
-            .thenReturn(Collections.singletonList(shoppingItem));
-        // Search the shoppingItem
-        restShoppingItemMockMvc.perform(get("/api/_search/shopping-items?query=id:" + shoppingItem.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(shoppingItem.getId().intValue())))
-            .andExpect(jsonPath("$.[*].owner").value(hasItem(DEFAULT_OWNER)))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].quantity").value(hasItem(DEFAULT_QUANTITY)))
-            .andExpect(jsonPath("$.[*].origin").value(hasItem(DEFAULT_ORIGIN.toString())))
-            .andExpect(jsonPath("$.[*].deleted").value(hasItem(DEFAULT_DELETED.booleanValue())));
     }
 
     @Test

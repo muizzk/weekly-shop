@@ -2,7 +2,6 @@ package com.logiciel.weeklyshop.web.rest;
 
 import com.logiciel.weeklyshop.domain.Staple;
 import com.logiciel.weeklyshop.repository.StapleRepository;
-import com.logiciel.weeklyshop.repository.search.StapleSearchRepository;
 import com.logiciel.weeklyshop.web.rest.errors.BadRequestAlertException;
 
 import io.github.jhipster.web.util.HeaderUtil;
@@ -19,10 +18,6 @@ import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
 
 /**
  * REST controller for managing {@link com.logiciel.weeklyshop.domain.Staple}.
@@ -40,11 +35,8 @@ public class StapleResource {
 
     private final StapleRepository stapleRepository;
 
-    private final StapleSearchRepository stapleSearchRepository;
-
-    public StapleResource(StapleRepository stapleRepository, StapleSearchRepository stapleSearchRepository) {
+    public StapleResource(StapleRepository stapleRepository) {
         this.stapleRepository = stapleRepository;
-        this.stapleSearchRepository = stapleSearchRepository;
     }
 
     /**
@@ -61,7 +53,6 @@ public class StapleResource {
             throw new BadRequestAlertException("A new staple cannot already have an ID", ENTITY_NAME, "idexists");
         }
         Staple result = stapleRepository.save(staple);
-        stapleSearchRepository.save(result);
         return ResponseEntity.created(new URI("/api/staples/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, false, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -83,7 +74,6 @@ public class StapleResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
         Staple result = stapleRepository.save(staple);
-        stapleSearchRepository.save(result);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, false, ENTITY_NAME, staple.getId().toString()))
             .body(result);
@@ -123,23 +113,7 @@ public class StapleResource {
     public ResponseEntity<Void> deleteStaple(@PathVariable Long id) {
         log.debug("REST request to delete Staple : {}", id);
         stapleRepository.deleteById(id);
-        stapleSearchRepository.deleteById(id);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString())).build();
-    }
-
-    /**
-     * {@code SEARCH  /_search/staples?query=:query} : search for the staple corresponding
-     * to the query.
-     *
-     * @param query the query of the staple search.
-     * @return the result of the search.
-     */
-    @GetMapping("/_search/staples")
-    public List<Staple> searchStaples(@RequestParam String query) {
-        log.debug("REST request to search Staples for query {}", query);
-        return StreamSupport
-            .stream(stapleSearchRepository.search(queryStringQuery(query)).spliterator(), false)
-            .collect(Collectors.toList());
     }
 
 }

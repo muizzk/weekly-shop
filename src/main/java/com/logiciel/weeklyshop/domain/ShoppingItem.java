@@ -1,4 +1,5 @@
 package com.logiciel.weeklyshop.domain;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -6,7 +7,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
-import org.springframework.data.elasticsearch.annotations.FieldType;
 import java.io.Serializable;
 
 import com.logiciel.weeklyshop.domain.enumeration.Origin;
@@ -17,7 +17,6 @@ import com.logiciel.weeklyshop.domain.enumeration.Origin;
 @Entity
 @Table(name = "shopping_item")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-@org.springframework.data.elasticsearch.annotations.Document(indexName = "shoppingitem")
 public class ShoppingItem implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -25,7 +24,6 @@ public class ShoppingItem implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator")
-    @org.springframework.data.elasticsearch.annotations.Field(type = FieldType.Keyword)
     private Long id;
 
     @NotNull

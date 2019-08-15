@@ -3,7 +3,6 @@ package com.logiciel.weeklyshop.service;
 import com.logiciel.weeklyshop.WeeklyShopApp;
 import com.logiciel.weeklyshop.config.Constants;
 import com.logiciel.weeklyshop.domain.User;
-import com.logiciel.weeklyshop.repository.search.UserSearchRepository;
 import com.logiciel.weeklyshop.repository.UserRepository;
 import com.logiciel.weeklyshop.service.dto.UserDTO;
 import com.logiciel.weeklyshop.service.util.RandomUtil;
@@ -56,14 +55,6 @@ public class UserServiceIT {
 
     @Autowired
     private UserService userService;
-
-    /**
-     * This repository is mocked in the com.logiciel.weeklyshop.repository.search test package.
-     *
-     * @see com.logiciel.weeklyshop.repository.search.UserSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private UserSearchRepository mockUserSearchRepository;
 
     @Autowired
     private AuditingHandler auditingHandler;
@@ -178,9 +169,6 @@ public class UserServiceIT {
         userService.removeNotActivatedUsers();
         users = userRepository.findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(now.minus(3, ChronoUnit.DAYS));
         assertThat(users).isEmpty();
-
-        // Verify Elasticsearch mock
-        verify(mockUserSearchRepository, times(1)).delete(user);
     }
 
     @Test
@@ -197,9 +185,6 @@ public class UserServiceIT {
         userService.removeNotActivatedUsers();
         Optional<User> maybeDbUser = userRepository.findById(dbUser.getId());
         assertThat(maybeDbUser).contains(dbUser);
-
-        // Verify Elasticsearch mock
-        verify(mockUserSearchRepository, never()).delete(user);
     }
 
     @Test

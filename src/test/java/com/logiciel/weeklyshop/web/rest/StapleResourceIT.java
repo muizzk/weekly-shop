@@ -3,7 +3,6 @@ package com.logiciel.weeklyshop.web.rest;
 import com.logiciel.weeklyshop.WeeklyShopApp;
 import com.logiciel.weeklyshop.domain.Staple;
 import com.logiciel.weeklyshop.repository.StapleRepository;
-import com.logiciel.weeklyshop.repository.search.StapleSearchRepository;
 import com.logiciel.weeklyshop.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +24,6 @@ import java.util.List;
 
 import static com.logiciel.weeklyshop.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -49,14 +47,6 @@ public class StapleResourceIT {
     @Autowired
     private StapleRepository stapleRepository;
 
-    /**
-     * This repository is mocked in the com.logiciel.weeklyshop.repository.search test package.
-     *
-     * @see com.logiciel.weeklyshop.repository.search.StapleSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private StapleSearchRepository mockStapleSearchRepository;
-
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
@@ -79,7 +69,7 @@ public class StapleResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final StapleResource stapleResource = new StapleResource(stapleRepository, mockStapleSearchRepository);
+        final StapleResource stapleResource = new StapleResource(stapleRepository);
         this.restStapleMockMvc = MockMvcBuilders.standaloneSetup(stapleResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -138,9 +128,6 @@ public class StapleResourceIT {
         assertThat(testStaple.getOwner()).isEqualTo(DEFAULT_OWNER);
         assertThat(testStaple.getQuantity()).isEqualTo(DEFAULT_QUANTITY);
         assertThat(testStaple.getName()).isEqualTo(DEFAULT_NAME);
-
-        // Validate the Staple in Elasticsearch
-        verify(mockStapleSearchRepository, times(1)).save(testStaple);
     }
 
     @Test
@@ -160,9 +147,6 @@ public class StapleResourceIT {
         // Validate the Staple in the database
         List<Staple> stapleList = stapleRepository.findAll();
         assertThat(stapleList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the Staple in Elasticsearch
-        verify(mockStapleSearchRepository, times(0)).save(staple);
     }
 
 
@@ -253,9 +237,6 @@ public class StapleResourceIT {
         assertThat(testStaple.getOwner()).isEqualTo(UPDATED_OWNER);
         assertThat(testStaple.getQuantity()).isEqualTo(UPDATED_QUANTITY);
         assertThat(testStaple.getName()).isEqualTo(UPDATED_NAME);
-
-        // Validate the Staple in Elasticsearch
-        verify(mockStapleSearchRepository, times(1)).save(testStaple);
     }
 
     @Test
@@ -274,9 +255,6 @@ public class StapleResourceIT {
         // Validate the Staple in the database
         List<Staple> stapleList = stapleRepository.findAll();
         assertThat(stapleList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Staple in Elasticsearch
-        verify(mockStapleSearchRepository, times(0)).save(staple);
     }
 
     @Test
@@ -295,26 +273,6 @@ public class StapleResourceIT {
         // Validate the database contains one less item
         List<Staple> stapleList = stapleRepository.findAll();
         assertThat(stapleList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the Staple in Elasticsearch
-        verify(mockStapleSearchRepository, times(1)).deleteById(staple.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchStaple() throws Exception {
-        // Initialize the database
-        stapleRepository.saveAndFlush(staple);
-        when(mockStapleSearchRepository.search(queryStringQuery("id:" + staple.getId())))
-            .thenReturn(Collections.singletonList(staple));
-        // Search the staple
-        restStapleMockMvc.perform(get("/api/_search/staples?query=id:" + staple.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(staple.getId().intValue())))
-            .andExpect(jsonPath("$.[*].owner").value(hasItem(DEFAULT_OWNER)))
-            .andExpect(jsonPath("$.[*].quantity").value(hasItem(DEFAULT_QUANTITY)))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
     }
 
     @Test

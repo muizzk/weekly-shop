@@ -3,7 +3,6 @@ package com.logiciel.weeklyshop.web.rest;
 import com.logiciel.weeklyshop.WeeklyShopApp;
 import com.logiciel.weeklyshop.domain.Category;
 import com.logiciel.weeklyshop.repository.CategoryRepository;
-import com.logiciel.weeklyshop.repository.search.CategorySearchRepository;
 import com.logiciel.weeklyshop.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +24,6 @@ import java.util.List;
 
 import static com.logiciel.weeklyshop.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -49,14 +47,6 @@ public class CategoryResourceIT {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    /**
-     * This repository is mocked in the com.logiciel.weeklyshop.repository.search test package.
-     *
-     * @see com.logiciel.weeklyshop.repository.search.CategorySearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private CategorySearchRepository mockCategorySearchRepository;
-
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
@@ -79,7 +69,7 @@ public class CategoryResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final CategoryResource categoryResource = new CategoryResource(categoryRepository, mockCategorySearchRepository);
+        final CategoryResource categoryResource = new CategoryResource(categoryRepository);
         this.restCategoryMockMvc = MockMvcBuilders.standaloneSetup(categoryResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -138,9 +128,6 @@ public class CategoryResourceIT {
         assertThat(testCategory.getName()).isEqualTo(DEFAULT_NAME);
         assertThat(testCategory.getOwner()).isEqualTo(DEFAULT_OWNER);
         assertThat(testCategory.getOrder()).isEqualTo(DEFAULT_ORDER);
-
-        // Validate the Category in Elasticsearch
-        verify(mockCategorySearchRepository, times(1)).save(testCategory);
     }
 
     @Test
@@ -160,9 +147,6 @@ public class CategoryResourceIT {
         // Validate the Category in the database
         List<Category> categoryList = categoryRepository.findAll();
         assertThat(categoryList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the Category in Elasticsearch
-        verify(mockCategorySearchRepository, times(0)).save(category);
     }
 
 
@@ -271,9 +255,6 @@ public class CategoryResourceIT {
         assertThat(testCategory.getName()).isEqualTo(UPDATED_NAME);
         assertThat(testCategory.getOwner()).isEqualTo(UPDATED_OWNER);
         assertThat(testCategory.getOrder()).isEqualTo(UPDATED_ORDER);
-
-        // Validate the Category in Elasticsearch
-        verify(mockCategorySearchRepository, times(1)).save(testCategory);
     }
 
     @Test
@@ -292,9 +273,6 @@ public class CategoryResourceIT {
         // Validate the Category in the database
         List<Category> categoryList = categoryRepository.findAll();
         assertThat(categoryList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the Category in Elasticsearch
-        verify(mockCategorySearchRepository, times(0)).save(category);
     }
 
     @Test
@@ -313,26 +291,6 @@ public class CategoryResourceIT {
         // Validate the database contains one less item
         List<Category> categoryList = categoryRepository.findAll();
         assertThat(categoryList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the Category in Elasticsearch
-        verify(mockCategorySearchRepository, times(1)).deleteById(category.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchCategory() throws Exception {
-        // Initialize the database
-        categoryRepository.saveAndFlush(category);
-        when(mockCategorySearchRepository.search(queryStringQuery("id:" + category.getId())))
-            .thenReturn(Collections.singletonList(category));
-        // Search the category
-        restCategoryMockMvc.perform(get("/api/_search/categories?query=id:" + category.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(category.getId().intValue())))
-            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)))
-            .andExpect(jsonPath("$.[*].owner").value(hasItem(DEFAULT_OWNER)))
-            .andExpect(jsonPath("$.[*].order").value(hasItem(DEFAULT_ORDER)));
     }
 
     @Test

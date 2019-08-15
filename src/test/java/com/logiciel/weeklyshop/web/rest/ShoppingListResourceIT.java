@@ -3,7 +3,6 @@ package com.logiciel.weeklyshop.web.rest;
 import com.logiciel.weeklyshop.WeeklyShopApp;
 import com.logiciel.weeklyshop.domain.ShoppingList;
 import com.logiciel.weeklyshop.repository.ShoppingListRepository;
-import com.logiciel.weeklyshop.repository.search.ShoppingListSearchRepository;
 import com.logiciel.weeklyshop.web.rest.errors.ExceptionTranslator;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +24,6 @@ import java.util.List;
 
 import static com.logiciel.weeklyshop.web.rest.TestUtil.createFormattingConversionService;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -42,14 +40,6 @@ public class ShoppingListResourceIT {
 
     @Autowired
     private ShoppingListRepository shoppingListRepository;
-
-    /**
-     * This repository is mocked in the com.logiciel.weeklyshop.repository.search test package.
-     *
-     * @see com.logiciel.weeklyshop.repository.search.ShoppingListSearchRepositoryMockConfiguration
-     */
-    @Autowired
-    private ShoppingListSearchRepository mockShoppingListSearchRepository;
 
     @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -73,7 +63,7 @@ public class ShoppingListResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final ShoppingListResource shoppingListResource = new ShoppingListResource(shoppingListRepository, mockShoppingListSearchRepository);
+        final ShoppingListResource shoppingListResource = new ShoppingListResource(shoppingListRepository);
         this.restShoppingListMockMvc = MockMvcBuilders.standaloneSetup(shoppingListResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -126,9 +116,6 @@ public class ShoppingListResourceIT {
         assertThat(shoppingListList).hasSize(databaseSizeBeforeCreate + 1);
         ShoppingList testShoppingList = shoppingListList.get(shoppingListList.size() - 1);
         assertThat(testShoppingList.getOwner()).isEqualTo(DEFAULT_OWNER);
-
-        // Validate the ShoppingList in Elasticsearch
-        verify(mockShoppingListSearchRepository, times(1)).save(testShoppingList);
     }
 
     @Test
@@ -148,9 +135,6 @@ public class ShoppingListResourceIT {
         // Validate the ShoppingList in the database
         List<ShoppingList> shoppingListList = shoppingListRepository.findAll();
         assertThat(shoppingListList).hasSize(databaseSizeBeforeCreate);
-
-        // Validate the ShoppingList in Elasticsearch
-        verify(mockShoppingListSearchRepository, times(0)).save(shoppingList);
     }
 
 
@@ -215,9 +199,6 @@ public class ShoppingListResourceIT {
         assertThat(shoppingListList).hasSize(databaseSizeBeforeUpdate);
         ShoppingList testShoppingList = shoppingListList.get(shoppingListList.size() - 1);
         assertThat(testShoppingList.getOwner()).isEqualTo(UPDATED_OWNER);
-
-        // Validate the ShoppingList in Elasticsearch
-        verify(mockShoppingListSearchRepository, times(1)).save(testShoppingList);
     }
 
     @Test
@@ -236,9 +217,6 @@ public class ShoppingListResourceIT {
         // Validate the ShoppingList in the database
         List<ShoppingList> shoppingListList = shoppingListRepository.findAll();
         assertThat(shoppingListList).hasSize(databaseSizeBeforeUpdate);
-
-        // Validate the ShoppingList in Elasticsearch
-        verify(mockShoppingListSearchRepository, times(0)).save(shoppingList);
     }
 
     @Test
@@ -257,24 +235,6 @@ public class ShoppingListResourceIT {
         // Validate the database contains one less item
         List<ShoppingList> shoppingListList = shoppingListRepository.findAll();
         assertThat(shoppingListList).hasSize(databaseSizeBeforeDelete - 1);
-
-        // Validate the ShoppingList in Elasticsearch
-        verify(mockShoppingListSearchRepository, times(1)).deleteById(shoppingList.getId());
-    }
-
-    @Test
-    @Transactional
-    public void searchShoppingList() throws Exception {
-        // Initialize the database
-        shoppingListRepository.saveAndFlush(shoppingList);
-        when(mockShoppingListSearchRepository.search(queryStringQuery("id:" + shoppingList.getId())))
-            .thenReturn(Collections.singletonList(shoppingList));
-        // Search the shoppingList
-        restShoppingListMockMvc.perform(get("/api/_search/shopping-lists?query=id:" + shoppingList.getId()))
-            .andExpect(status().isOk())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8_VALUE))
-            .andExpect(jsonPath("$.[*].id").value(hasItem(shoppingList.getId().intValue())))
-            .andExpect(jsonPath("$.[*].owner").value(hasItem(DEFAULT_OWNER)));
     }
 
     @Test
