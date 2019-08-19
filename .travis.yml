@@ -1,5 +1,6 @@
 script: mvn clean verify -Pprod,webpack -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn
 deploy:
   provider: heroku
-  api_key: $HEROKU_API_KEY
   app: weekly-shop
+  api_key:
+    secure: C26N8wyvKJaoQpbMpHaCCOvylsydkOXzginAeYJ+ub1EAS2I4YdG2qwa41ZnXro3ZZoOhOroqeoQMCwLPCYJlg7BzbFOltI4j/on7E3e7e6xpiSQ/8Dakwqp9p+0H2BlHXBgMmVYbHa2Kdc0bAWnukD/2Zdoj6XtreSXtkB3OTQ91FzWcl5+fIQ76PHfhH8k83Dxee5pOPtZn739FGHoNwVAgcoh9a51WYpB2PBT4lpW8KdFad34KQ833XVNaHRJ+yZV7wM6NoiO79NbfQvpSUaqn/9ast6wDjna1InvY119ljG+JHCewatL+btqbxZSdIa/fFRgsvLs3ONNnAC5UL3k+VLZ2Fig78cgZfAdcoG1uDe4N9eCMI5QZ8Rvhs72KNY2Wq/Pfk6KHsqb45p6ZPaSfA5mq5wqhS2Cvws77AsD3hPmSvdj7G8h4DUVdG+OK9ZvlgATtCDyahzmc6LloOwgguBtS+dKWgb97d8OUQ2y584KBxfymR6D10GF7SKjs4//ONwjTaEkkLpFtpj43Z/1wKH3xf7f8VS6GRoSL6rbM2Q+dPJz91I0KbjrhAopAkgKDEESR78qT2LU/RePANG2iEJQPb/e1B6iuCixy3beNU/wK2Kj+mp9rlrHyu8QTRbZWw99B6XMyeCdQP6413YO71TgGAbGaKWbo0CLxHs=
