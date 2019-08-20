@@ -2,5 +2,6 @@ script: mvn clean package -Pprod,webpack -B -Dorg.slf4j.simpleLogger.log.org.apa
 deploy:
   provider: heroku
   app: weeklyshop
+  skip_cleanup: true
   api_key:
     secure: Hgs5Foh0flliYZfEbVQsyzUe5ZV5CvWEI22Lel9XbRKCO3DWqri4mZtPvzD9UIpbVVTlVdu8lUNkAwdns8gFGiVmjuOJElFDMJwcKfgZHKwZAPasrOBlgx/k5Dhsg9b8vddWcni4N7LG9zcMP/I2W153iB5dzYv0fBNnjICfwz6CUE6hvCGW/iuGDktFdQykK/SlHxBGKVIlWvlZIeb2yIZ0IxKzdxGBBPXbX1y/qPPTMTh+EGBguNBXyGPbhTA/JjKkjK7cx6XcIOjjIGjycHa4dvFfOkw+nlXHmotsxNp81lxwUbdMfnwcobjp6ePyiqwt3v2isYHZbWvDy5pjsY9NNKw3RlLkfpF2/pyBNebLJghp28TflxkLzYEfHC6PrSgDdghhYW+5izvKpv1hE3mbdlxrzmadWvKs/nWdFfvr+RA+rVXCOcu4E9gx2XAgRxbwyO9gVFCEAYCrR/4OOGf/xe1kE7FaKiPkD5UVVOmlG2Cnl1jP+6VRahzM6UPohLVwAKV+1zEq/e7xA4JWVSdVuc1HzUOR6eAM3PZj3mMvDA3BYxjtj0YRFXaUyslc/UScb8tcKmZW7Wmqm5qJBZhmZ8FE+AeVq+Z0h+6rVvK2g2AED8e7sXxHwgGCfgYxslf7JF+l3H25Z4dk/dirqPIZs1buuR6XlE1AUbeDjEM=
